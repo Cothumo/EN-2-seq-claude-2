@@ -16,7 +16,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local n=self:ind() function cl(v,a,b)return math.max(a,math.min(b,v))end function note_off(e) if e.on and e.ln>=0 then gms(ch,144,e.ln,0)end e.on=false e.gate=0 end function refresh_lane(i) local e=ele[i] if e:bva()>0 then glc(i,1,0,100,255,0) glp(i,1,cl(e.n*2,80,255)) else glc(i,1,255,0,0,0) glp(i,1,20) end end function init_lane(i) local e=ele[i] local k=cl(e.division_index or 7,1,#lane_divs) e:bmo(1)e:emi(1)e:ema(#lane_divs) e.division_index=k e.divisions=lane_divs[k] e:eva(k)e:bva(0) e.c=-1 e.n=e.n or rootNote glc(i,2,255,255,255,0)glp(i,2,0) e.ln=-1 e.on=false e.gate=0 refresh_lane(i) end init_lane(n)"
+                    "config": "--[[@cb]] local n=self:ind() function cl(v,a,b)return math.max(a,math.min(b,v))end function note_off(e) if e.on and e.ln>=0 then gms(e.lc,144,e.ln,0)end e.on=false e.gate=0 end function refresh_lane(i) local e=ele[i] if e:bva()>0 then glc(i,1,0,100,255,0) glp(i,1,cl((out_mode==2 and e.dn or e.n)*2,80,255)) else glc(i,1,255,0,0,0) glp(i,1,20) end end function init_lane(i) local e=ele[i] local k=cl(e.division_index or 7,1,#lane_divs) e:bmo(1)e:emi(1)e:ema(#lane_divs) e.division_index=k e.divisions=lane_divs[k] e:eva(k)e:bva(0) e.c=-1 e.n=e.n or rootNote glc(i,2,255,255,255,0)glp(i,2,0) e.ln=-1 e.lc=ch e.on=false e.gate=0 refresh_lane(i) end init_lane(n)"
                 },
                 {
                     "event": 3,
@@ -37,7 +37,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local n=self:ind() init_lane(n) function apply_scale() local s=scales[currentScale] for i=0,7 do ele[i].n=s and cl(rootNote+s[i+1],0,127) or rootNote refresh_lane(i) end end function scale_led() local c=scale_cols[currentScale] or{255,255,255} glc(12,1,c[1],c[2],c[3]) glc(12,2,c[1],c[2],c[3]) glp(12,1,255) end"
+                    "config": "--[[@cb]] local n=self:ind() init_lane(n) function apply_scale() local s=scales[currentScale] for i=0,7 do ele[i].n=s and cl(rootNote+s[i+1],0,127) or rootNote refresh_lane(i) end end function scale_led() local c=out_mode==2 and drum_cols[drum_map] or scale_cols[currentScale] or{255,255,255} local m=mode_cols[out_mode] glc(12,1,c[1],c[2],c[3]) glp(12,1,255) glc(12,2,m[1],m[2],m[3]) glp(12,2,out_mode>1 and 255 or 0) end"
                 },
                 {
                     "event": 3,
@@ -58,7 +58,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function cx(x,y) local t=ele[x]:bst()>0 and y+4 or y local e=ele[t] e.n=cl(e.n+(ele[x]:est()>63 and 1 or -1),0,127) refresh_lane(t) glp(x,2,180) print(\"lane \"..t..\" note:\"..e.n) end function lane_btn(s) local i=s:ind() if s:bva()==0 then note_off(s) glp(i,2,0) end refresh_lane(i) end function lane_enc(s) local k=cl(s:eva(),1,#lane_divs) s.division_index=k s.divisions=lane_divs[k] refresh_lane(s:ind()) print(\"lane \"..s:ind()..\" div:\"..s.divisions) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function cx(x,y) local t=ele[x]:bst()>0 and y+4 or y local e=ele[t] local f=out_mode==2 and \"dn\" or \"n\" e[f]=cl(e[f]+(ele[x]:est()>63 and 1 or -1),0,127) refresh_lane(t) glp(x,2,180) print(\"lane \"..t..\" note:\"..e[f]) end function lane_btn(s) local i=s:ind() if s:bva()==0 then note_off(s) glp(i,2,0) end refresh_lane(i) end function lane_enc(s) local k=cl(s:eva(),1,#lane_divs) s.division_index=k s.divisions=lane_divs[k] refresh_lane(s:ind()) print(\"lane \"..s:ind()..\" div:\"..s.divisions) end"
                 },
                 {
                     "event": 3,
@@ -79,7 +79,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function lane_tick(x) local e=ele[x] e.c=e.c+1 if e.c>=e.divisions then e.c=0 end if e.c==0 then if e:bva()>0 then note_off(e) local n=cl(e.n,0,127) e.ln=n gms(ch,144,n,127) e.on=true e.gate=math.max(1,math.floor(e.divisions*clock_pulses*gate_pct/100+0.5)) glp(x,2,255) end elseif e.c==1 then glp(x,2,0) end end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function lane_tick(x) local e=ele[x] e.c=e.c+1 if e.c>=e.divisions then e.c=0 end if e.c==0 then if e:bva()>0 then note_off(e) local c=out_mode==2 and drum_ch or out_mode==3 and x or ch local n=cl(out_mode==2 and e.dn or e.n,0,127) e.ln=n e.lc=c used[c]=true gms(c,144,n,127) e.on=true e.gate=math.max(1,math.floor(e.divisions*clock_pulses*gate_pct/100+0.5)) glp(x,2,255) end elseif e.c==1 then glp(x,2,0) end end"
                 },
                 {
                     "event": 3,
@@ -142,7 +142,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function stop_sequence() transport_running=false for i=0,7 do note_off(ele[i]) glp(i,2,0) end gms(ch,176,123,0) glp(14,2,0)glp(15,2,0) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function stop_sequence() transport_running=false for i=0,7 do note_off(ele[i]) glp(i,2,0) end for c in pairs(used) do gms(c,176,123,0) end used={} glp(14,2,0)glp(15,2,0) end"
                 },
                 {
                     "event": 3,
@@ -268,15 +268,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] self:bva(0) self:emi(0)self:ema(7)self:eva(currentScale) scale_led()"
+                    "config": "--[[@cb]] drum_maps={{36,38,42,46,39,37,45,49},{36,37,38,39,40,41,42,43},{36,38,43,47,50,37,42,46}} drum_names={\"GM\",\"C1 chromatic\",\"TR\"} drum_cols={{255,0,0},{0,255,0},{0,0,255}} mode_cols={{0,0,0},{255,255,255},{0,255,255}} mode_names={\"scale\",\"drum\",\"multi\"} drum_map=1 function apply_drums() local m=drum_maps[drum_map] for i=0,7 do ele[i].dn=m[i+1] refresh_lane(i) end end function mode_enc(s) if out_mode==2 then s:emi(1)s:ema(#drum_maps)s:eva(drum_map) else s:emi(0)s:ema(7)s:eva(currentScale) end end self:bmo(0)self:bva(0) apply_drums() mode_enc(self) scale_led()"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]]"
+                    "config": "--[[@cb]] if self:bva()>0 then out_mode=out_mode%3+1 mode_enc(self) scale_led() for i=0,7 do refresh_lane(i) end print(\"mode:\"..mode_names[out_mode]) end"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] currentScale=self:eva() apply_scale() scale_led() print(\"scale:\"..currentScale)"
+                    "config": "--[[@cb]] if out_mode==2 then drum_map=cl(self:eva(),1,#drum_maps) apply_drums() print(\"drums:\"..drum_names[drum_map]) else currentScale=self:eva() apply_scale() print(\"scale:\"..currentScale) end scale_led()"
                 },
                 {
                     "event": 6,
@@ -352,7 +352,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] rootNote=rootNote or 60 ch=0 gate_pct=math.max(10,math.min(80,gate_pct or 50)) currentScale=math.max(0,math.min(7,currentScale or 1)) lane_divs={2,3,4,6,8,12,16,24,32} clock_divs={3,6,12,24} clock_labels={\"1/32\",\"1/16\",\"1/8\",\"1/4\"} clock_cols={{0,255,255},{0,120,255},{255,0,255},{255,180,0}} clock_index=math.max(1,math.min(#clock_divs,clock_index or 2)) clock_pulses=clock_divs[clock_index] midi_clock_counter=clock_pulses-1 globalCounter=-1 transport_running=false boot_clock=true scales={ {0,2,4,5,7,9,11,12},{0,2,3,5,7,9,10,12}, {0,1,3,5,7,8,10,12},{0,2,4,6,7,9,11,12}, {0,2,4,5,7,9,10,12},{0,2,3,5,7,8,10,12}, {0,1,3,5,6,8,10,12} } scale_cols={ {255,0,0},{255,127,0},{255,255,0},{0,255,0}, {0,0,255},{75,0,130},{148,0,211} }"
+                    "config": "--[[@cb]] rootNote=rootNote or 60 ch=0 drum_ch=9 out_mode=1 used={} gate_pct=math.max(10,math.min(80,gate_pct or 50)) currentScale=math.max(0,math.min(7,currentScale or 1)) lane_divs={2,3,4,6,8,12,16,24,32} clock_divs={3,6,12,24} clock_labels={\"1/32\",\"1/16\",\"1/8\",\"1/4\"} clock_cols={{0,255,255},{0,120,255},{255,0,255},{255,180,0}} clock_index=math.max(1,math.min(#clock_divs,clock_index or 2)) clock_pulses=clock_divs[clock_index] midi_clock_counter=clock_pulses-1 globalCounter=-1 transport_running=false boot_clock=true scales={ {0,2,4,5,7,9,11,12},{0,2,3,5,7,9,10,12}, {0,1,3,5,7,8,10,12},{0,2,4,6,7,9,11,12}, {0,2,4,5,7,9,10,12},{0,2,3,5,7,8,10,12}, {0,1,3,5,6,8,10,12} } scale_cols={ {255,0,0},{255,127,0},{255,255,0},{0,255,0}, {0,0,255},{75,0,130},{148,0,211} }"
                 },
                 {
                     "event": 4,
