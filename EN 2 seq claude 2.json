@@ -16,15 +16,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local n=self:ind() rootNote=rootNote or 60 ch=ch or 0 lane_divs={2,3,4,6,8,12,16,24,32} function cl(v,a,b)return math.max(a,math.min(b,v))end function note_off(e) if e and e.on and e.ln and e.ln>=0 then gms(ch,144,e.ln,0)end if e then e.on=false e.gate=0 end end function refresh_lane(i) local e=ele[i] if not e then return end if (e:bva()or 0)>0 then glc(i,1,0,100,255,0) glp(i,1,cl((e.n or rootNote)*2,80,255)) else glc(i,1,255,0,0,0) glp(i,1,20) end end function init_lane(i) local e=ele[i] local k=cl(e.division_index or 7,1,#lane_divs) e:bmo(1)e:emi(1)e:ema(#lane_divs) e.division_index=k e.divisions=lane_divs[k] e:eva(k)e:bva(0) e.c=-1 e.n=e.n or rootNote glc(i,2,255,255,255,0)glp(i,2,0) e.ln=-1 e.on=false e.gate=0 refresh_lane(i) end init_lane(n)"
+                    "config": "--[[@cb]] local n=self:ind() function cl(v,a,b)return math.max(a,math.min(b,v))end function note_off(e) if e.on and e.ln>=0 then gms(ch,144,e.ln,0)end e.on=false e.gate=0 end function refresh_lane(i) local e=ele[i] if e:bva()>0 then glc(i,1,0,100,255,0) glp(i,1,cl(e.n*2,80,255)) else glc(i,1,255,0,0,0) glp(i,1,20) end end function init_lane(i) local e=ele[i] local k=cl(e.division_index or 7,1,#lane_divs) e:bmo(1)e:emi(1)e:ema(#lane_divs) e.division_index=k e.divisions=lane_divs[k] e:eva(k)e:bva(0) e.c=-1 e.n=e.n or rootNote glc(i,2,255,255,255,0)glp(i,2,0) e.ln=-1 e.on=false e.gate=0 refresh_lane(i) end init_lane(n)"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] local num=self:ind() if self:bva()==0 and note_off then note_off(ele[num])end refresh_lane(num) if self:bva()==0 then glp(num,2,0)end"
+                    "config": "--[[@cb]] lane_btn(self)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] refresh_lane(self:ind()) print(\"lane \"..self:ind()..\" div:\"..self.divisions)"
+                    "config": "--[[@cb]] lane_enc(self)"
                 },
                 {
                     "event": 6,
@@ -37,15 +37,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local n=self:ind() init_lane(n) scales={ {0,2,4,5,7,9,11,12},{0,2,3,5,7,9,10,12}, {0,1,3,5,7,8,10,12},{0,2,4,6,7,9,11,12}, {0,2,4,5,7,9,10,12},{0,2,3,5,7,8,10,12}, {0,1,3,5,6,8,10,12} } scale_cols={ {255,0,0},{255,127,0},{255,255,0},{0,255,0}, {0,0,255},{75,0,130},{148,0,211} } function apply_scale() local s=scales[currentScale] for i=0,7 do if currentScale==0 or not s then ele[i].n=rootNote else ele[i].n=cl(rootNote+s[i+1],0,127) end refresh_lane(i) end end function scale_led() local c=scale_cols[currentScale]or{255,255,255} if currentScale==0 then c={0,255,0}end glc(12,1,c[1],c[2],c[3]) glc(12,2,c[1],c[2],c[3]) end"
+                    "config": "--[[@cb]] local n=self:ind() init_lane(n) function apply_scale() local s=scales[currentScale] for i=0,7 do ele[i].n=s and cl(rootNote+s[i+1],0,127) or rootNote refresh_lane(i) end end function scale_led() local c=scale_cols[currentScale] or{255,255,255} glc(12,1,c[1],c[2],c[3]) glc(12,2,c[1],c[2],c[3]) glp(12,1,255) end"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] local num=self:ind() if self:bva()==0 and note_off then note_off(ele[num])end refresh_lane(num) if self:bva()==0 then glp(num,2,0)end"
+                    "config": "--[[@cb]] lane_btn(self)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] refresh_lane(self:ind()) print(\"lane \"..self:ind()..\" div:\"..self.divisions)"
+                    "config": "--[[@cb]] lane_enc(self)"
                 },
                 {
                     "event": 6,
@@ -58,15 +58,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function cx(x,y) local t=ele[x]:bst()>0 and y+4 or y local e=ele[t] e.n=cl((e.n or rootNote)+(ele[x]:est()>63 and 1 or -1),0,127) refresh_lane(t) glp(x,2,180) print(\"lane \"..t..\" note:\"..e.n) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function cx(x,y) local t=ele[x]:bst()>0 and y+4 or y local e=ele[t] e.n=cl(e.n+(ele[x]:est()>63 and 1 or -1),0,127) refresh_lane(t) glp(x,2,180) print(\"lane \"..t..\" note:\"..e.n) end function lane_btn(s) local i=s:ind() if s:bva()==0 then note_off(s) glp(i,2,0) end refresh_lane(i) end function lane_enc(s) local k=cl(s:eva(),1,#lane_divs) s.division_index=k s.divisions=lane_divs[k] refresh_lane(s:ind()) print(\"lane \"..s:ind()..\" div:\"..s.divisions) end"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] local num=self:ind() if self:bva()==0 and note_off then note_off(ele[num])end refresh_lane(num) if self:bva()==0 then glp(num,2,0)end"
+                    "config": "--[[@cb]] lane_btn(self)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] refresh_lane(self:ind()) print(\"lane \"..self:ind()..\" div:\"..self.divisions)"
+                    "config": "--[[@cb]] lane_enc(self)"
                 },
                 {
                     "event": 6,
@@ -79,15 +79,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function lane_tick(x) local e=ele[x] if not e then return end e.c=(e.c or -1)+1 if e.c>=(e.divisions or 16)then e.c=0 end if e.c==0 then if (e:bva()or 0)>0 then if e.on then note_off(e)end local n=cl(e.n or rootNote,0,127) e.ln=n gms(ch,144,n,127) e.on=true local g=(e.divisions or 16)*(clock_pulses or 6)*(gate_pct or 50)/100 e.gate=math.max(1,math.floor(g+0.5)) glp(x,2,255) else note_off(e)glp(x,2,0) end else glp(x,2,0) end end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function lane_tick(x) local e=ele[x] e.c=e.c+1 if e.c>=e.divisions then e.c=0 end if e.c==0 then if e:bva()>0 then note_off(e) local n=cl(e.n,0,127) e.ln=n gms(ch,144,n,127) e.on=true e.gate=math.max(1,math.floor(e.divisions*clock_pulses*gate_pct/100+0.5)) glp(x,2,255) end elseif e.c==1 then glp(x,2,0) end end"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] local num=self:ind() if self:bva()==0 and note_off then note_off(ele[num])end refresh_lane(num) if self:bva()==0 then glp(num,2,0)end"
+                    "config": "--[[@cb]] lane_btn(self)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] refresh_lane(self:ind()) print(\"lane \"..self:ind()..\" div:\"..self.divisions)"
+                    "config": "--[[@cb]] lane_enc(self)"
                 },
                 {
                     "event": 6,
@@ -100,15 +100,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function random_tick() local e=ele[14] if not e then return end e.counter=((e.counter or -1)+1)%(e.divisions or 16) if (e:bva()or 0)>0 and e.counter==0 then glp(14,2,200) glc(14,2,grnd()%255,grnd()%255,grnd()%255) glc(14,1,grnd()%255,grnd()%255,grnd()%255) for i=0,7 do local k=(grnd()%#lane_divs)+1 ele[i].division_index=k ele[i].divisions=lane_divs[k] ele[i]:eva(k) refresh_lane(i) end else glp(14,2,0) end end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function random_tick() local e=ele[14] e.counter=(e.counter+1)%e.divisions if e.counter==0 and e:bva()>0 then glp(14,2,200) glc(14,2,grnd(),grnd(),grnd()) glc(14,1,grnd(),grnd(),grnd()) for i=0,7 do local k=grnd()%#lane_divs+1 local l=ele[i] l.division_index=k l.divisions=lane_divs[k] l:eva(k) refresh_lane(i) end else glp(14,2,0) end end"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] local num=self:ind() if self:bva()==0 and note_off then note_off(ele[num])end refresh_lane(num) if self:bva()==0 then glp(num,2,0)end"
+                    "config": "--[[@cb]] lane_btn(self)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] refresh_lane(self:ind()) print(\"lane \"..self:ind()..\" div:\"..self.divisions)"
+                    "config": "--[[@cb]] lane_enc(self)"
                 },
                 {
                     "event": 6,
@@ -121,15 +121,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function sequencer_tick() globalCounter=(globalCounter+1)%16 for i=0,7 do lane_tick(i)end random_tick() glp(15,2,globalCounter==0 and 255 or(globalCounter%4==0 and 50 or 0)) end function reset_sequence() globalCounter=-1 midi_clock_counter=(clock_pulses or 6)-1 for i=0,7 do local e=ele[i] note_off(e)e.c=-1 e.ln=-1 e.on=false glp(i,2,0) end ele[14].counter=-1 glp(14,2,0)glp(15,2,0) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function sequencer_tick() globalCounter=(globalCounter+1)%16 for i=0,7 do lane_tick(i)end random_tick() glp(15,2,globalCounter==0 and 255 or(globalCounter%4==0 and 50 or 0)) end function reset_sequence() globalCounter=-1 midi_clock_counter=clock_pulses-1 for i=0,7 do local e=ele[i] note_off(e)e.c=-1 e.ln=-1 glp(i,2,0) end ele[14].counter=-1 glp(14,2,0)glp(15,2,0) end"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] local num=self:ind() if self:bva()==0 and note_off then note_off(ele[num])end refresh_lane(num) if self:bva()==0 then glp(num,2,0)end"
+                    "config": "--[[@cb]] lane_btn(self)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] refresh_lane(self:ind()) print(\"lane \"..self:ind()..\" div:\"..self.divisions)"
+                    "config": "--[[@cb]] lane_enc(self)"
                 },
                 {
                     "event": 6,
@@ -142,15 +142,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function stop_sequence() transport_running=false for i=0,7 do note_off(ele[i]) glp(i,2,0) end for c=0,15 do gms(c,176,123,0)end glp(14,2,0)glp(15,2,0) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function stop_sequence() transport_running=false for i=0,7 do note_off(ele[i]) glp(i,2,0) end gms(ch,176,123,0) glp(14,2,0)glp(15,2,0) end"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] local num=self:ind() if self:bva()==0 and note_off then note_off(ele[num])end refresh_lane(num) if self:bva()==0 then glp(num,2,0)end"
+                    "config": "--[[@cb]] lane_btn(self)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] refresh_lane(self:ind()) print(\"lane \"..self:ind()..\" div:\"..self.divisions)"
+                    "config": "--[[@cb]] lane_enc(self)"
                 },
                 {
                     "event": 6,
@@ -163,15 +163,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function rt(b) if b==248 then if boot_clock then boot_clock=false transport_running=true reset_sequence() end if transport_running then if gate_tick then gate_tick()end midi_clock_counter=(midi_clock_counter+1)%(clock_pulses or 6) if midi_clock_counter==0 then sequencer_tick()end end elseif b==250 then boot_clock=false transport_running=true reset_sequence() elseif b==251 then boot_clock=false transport_running=true elseif b==252 then boot_clock=false stop_sequence() end end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function rt(b) if b==248 then if boot_clock then boot_clock=false transport_running=true reset_sequence() end if transport_running then gate_tick() midi_clock_counter=(midi_clock_counter+1)%clock_pulses if midi_clock_counter==0 then sequencer_tick()end end elseif b==250 then boot_clock=false transport_running=true reset_sequence() elseif b==251 then boot_clock=false transport_running=true elseif b==252 then boot_clock=false stop_sequence() end end"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] local num=self:ind() if self:bva()==0 and note_off then note_off(ele[num])end refresh_lane(num) if self:bva()==0 then glp(num,2,0)end"
+                    "config": "--[[@cb]] lane_btn(self)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] refresh_lane(self:ind()) print(\"lane \"..self:ind()..\" div:\"..self.divisions)"
+                    "config": "--[[@cb]] lane_enc(self)"
                 },
                 {
                     "event": 6,
@@ -192,7 +192,7 @@
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] if cx then cx(self:ind(),self:ind()-8)end"
+                    "config": "--[[@cb]] local i=self:ind() cx(i,i-8)"
                 },
                 {
                     "event": 6,
@@ -213,7 +213,7 @@
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] if cx then cx(self:ind(),self:ind()-8)end"
+                    "config": "--[[@cb]] local i=self:ind() cx(i,i-8)"
                 },
                 {
                     "event": 6,
@@ -234,7 +234,7 @@
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] if cx then cx(self:ind(),self:ind()-8)end"
+                    "config": "--[[@cb]] local i=self:ind() cx(i,i-8)"
                 },
                 {
                     "event": 6,
@@ -255,7 +255,7 @@
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] if cx then cx(self:ind(),self:ind()-8)end"
+                    "config": "--[[@cb]] local i=self:ind() cx(i,i-8)"
                 },
                 {
                     "event": 6,
@@ -268,7 +268,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] self:bva(0) currentScale=currentScale or 1 self:emi(0)self:ema(7)self:eva(currentScale) if scale_led then scale_led()end"
+                    "config": "--[[@cb]] self:bva(0) self:emi(0)self:ema(7)self:eva(currentScale) scale_led()"
                 },
                 {
                     "event": 3,
@@ -289,7 +289,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local n=self:ind() gate_pct=math.max(10,math.min(80,gate_pct or 50)) gate_cols={{0,255,255},{0,255,0},{255,180,0},{255,0,0}} self:emo(1)self:ev0(50)self:emi(10)self:ema(80) self:eva(gate_pct)self:bmo(0) function gate_led() local p=gate_pct or 50 local k=p<=20 and 1 or p<=40 and 2 or p<=60 and 3 or 4 local c=gate_cols[k] glc(13,1,c[1],c[2],c[3])glp(13,1,math.max(40,p*3))glp(13,2,0) end function gate_tick() for i=0,7 do local e=ele[i] if e.on and(e.gate or 0)>0 then e.gate=e.gate-1 if e.gate==0 then note_off(e)end end end end gate_led()"
+                    "config": "--[[@cb]] gate_cols={{0,255,255},{0,255,0},{255,180,0},{255,0,0}} self:emo(1)self:ev0(50)self:emi(10)self:ema(80) self:eva(gate_pct)self:bmo(0) function gate_led() local p=gate_pct local k=p<=20 and 1 or p<=40 and 2 or p<=60 and 3 or 4 local c=gate_cols[k] glc(13,1,c[1],c[2],c[3])glp(13,1,math.max(40,p*3))glp(13,2,0) end function gate_tick() for i=0,7 do local e=ele[i] if e.on and e.gate>0 then e.gate=e.gate-1 if e.gate==0 then note_off(e)end end end end gate_led()"
                 },
                 {
                     "event": 3,
@@ -297,7 +297,7 @@
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local d=self:est()>63 and 5 or -5 gate_pct=cl((gate_pct or 50)+d,10,80) self:eva(gate_pct) gate_led() print(\"gate:\"..gate_pct..\"%\")"
+                    "config": "--[[@cb]] gate_pct=cl(gate_pct+(self:est()>63 and 5 or -5),10,80) self:eva(gate_pct) gate_led() print(\"gate:\"..gate_pct..\"%\")"
                 },
                 {
                     "event": 6,
@@ -310,15 +310,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() self:bmo(1)self:emi(1)self:ema(#lane_divs) self.division_index=7 self:eva(self.division_index) self.divisions=lane_divs[self.division_index] self:bva(0)self.counter=-1 glp(num,1,0)glp(num,2,0) glc(num,1,255,0,255)glc(num,2,255,0,255) function clock_led()local c=clock_cols and clock_cols[clock_index]or{255,255,255}glc(15,1,c[1],c[2],c[3])glp(15,1,(clock_index or 2)*50)end clock_led()"
+                    "config": "--[[@cb]] local num=self:ind() self:bmo(1)self:emi(1)self:ema(#lane_divs) self.division_index=7 self:eva(7) self.divisions=lane_divs[7] self:bva(0)self.counter=-1 glp(num,1,0)glp(num,2,0) glc(num,1,255,0,255)glc(num,2,255,0,255) function clock_led() local c=clock_cols[clock_index] glc(15,1,c[1],c[2],c[3])glp(15,1,clock_index*50) end clock_led()"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@l]] local num,val,ch,note=self:ind(),self:bva(),(gmy()* 4 + gpc())% 16,(32 + gmx()* 16 + self:ind())% 128--[[@cb]] if self:bva()> 0 then glp(num,2,100)else glp(num,2,0)end"
+                    "config": "--[[@cb]] glp(self:ind(),2,self:bva()>0 and 100 or 0)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=math.max(1,math.min(#lane_divs,self:eva())) self.division_index=k self.divisions=lane_divs[k] print(\"random div:\"..self.divisions)"
+                    "config": "--[[@cb]] local k=cl(self:eva(),1,#lane_divs) self.division_index=k self.divisions=lane_divs[k] print(\"random div:\"..self.divisions)"
                 },
                 {
                     "event": 6,
@@ -331,7 +331,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local n=self:ind() clock_divs=clock_divs or{3,6,12,24} clock_labels=clock_labels or{\"1/32\",\"1/16\",\"1/8\",\"1/4\"} clock_cols=clock_cols or{{0,255,255},{0,120,255},{255,0,255},{255,180,0}} clock_index=math.max(1,math.min(#clock_divs,clock_index or 2)) clock_pulses=clock_divs[clock_index] self:emo(1)self:ev0(50)self:emi(1)self:ema(#clock_divs) self:eva(clock_index)self:bmo(0) if clock_led then clock_led()end glc(n,2,255,255,255)glp(n,2,0) for i=0,7 do if init_lane then init_lane(i)end end if apply_scale then apply_scale()end if scale_led then scale_led()end local z=ele[#ele] z.rtmrx_cb=function(s,h,b)if rt then rt(b)end end z.midirx_cb=function(s,h,e) local a,k,v=e[2],e[3],e[4] if a>=144 and a<=159 and v>0 then rootNote=math.max(0,math.min(127,k)) if apply_scale then apply_scale()end print(\"rootNote:\"..rootNote) end end rx_mode(2,3)"
+                    "config": "--[[@cb]] local n=self:ind() self:emo(1)self:ev0(50)self:emi(1)self:ema(#clock_divs) self:eva(clock_index)self:bmo(0) glc(n,2,255,255,255)glp(n,2,0) apply_scale() local z=ele[#ele] z.rtmrx_cb=function(s,h,b) rt(b) end z.midirx_cb=function(s,h,e) local a,k,v=e[2],e[3],e[4] if a>=144 and a<=159 and v>0 then rootNote=k apply_scale() print(\"rootNote:\"..rootNote) end end rx_mode(0,3)rx_mode(2,3)"
                 },
                 {
                     "event": 3,
@@ -339,7 +339,7 @@
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local num=self:ind() local d=self:est()>63 and 1 or -1 clock_index=math.max(1,math.min(#clock_divs,(clock_index or 2)+d)) clock_pulses=clock_divs[clock_index] midi_clock_counter=clock_pulses-1 self:eva(clock_index) if clock_led then clock_led()end print(\"clock:\"..clock_labels[clock_index])"
+                    "config": "--[[@cb]] clock_index=cl(clock_index+(self:est()>63 and 1 or -1),1,#clock_divs) clock_pulses=clock_divs[clock_index] midi_clock_counter=midi_clock_counter%clock_pulses self:eva(clock_index) clock_led() print(\"clock:\"..clock_labels[clock_index])"
                 },
                 {
                     "event": 6,
