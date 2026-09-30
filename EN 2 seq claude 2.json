@@ -16,7 +16,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local n=self:ind() function cl(v,a,b)return math.max(a,math.min(b,v))end function note_off(e) if e.on and e.ln>=0 then gms(e.lc,144,e.ln,0)end e.on=false e.gate=0 end function refresh_lane(i) local e=ele[i] if e:bva()>0 then glc(i,1,0,100,255,0) glp(i,1,cl((out_mode==2 and e.dn or e.n)*2,80,255)) else glc(i,1,255,0,0,0) glp(i,1,20) end end function init_lane(i) local e=ele[i] local k=cl(e.division_index or 7,1,#lane_divs) e:bmo(1)e:emi(1)e:ema(#lane_divs) e.division_index=k e.divisions=lane_divs[k] e:eva(k)e:bva(0) e.c=-1 e.n=e.n or rootNote glc(i,2,255,255,255,0)glp(i,2,0) e.ln=-1 e.lc=ch e.on=false e.gate=0 e.wait=0 e.fl=0 refresh_lane(i) end init_lane(n)"
+                    "config": "--[[@cb]] local n=self:ind() function cl(v,a,b)return math.max(a,math.min(b,v))end function note_off(e) if e.on and e.ln>=0 then local k=e.lc*128+e.ln if own[k]==e then gms(e.lc,144,e.ln,0) own[k]=nil end end e.on=false e.gate=0 end function refresh_lane(i) local e=ele[i] if e:bva()>0 then glc(i,1,0,100,255,0) glp(i,1,cl((out_mode==2 and e.dn or e.n)*2,80,255)) else glc(i,1,255,0,0,0) glp(i,1,20) end end function init_lane(i) local e=ele[i] local k=cl(e.division_index or 7,1,#lane_divs) e:bmo(1)e:emi(1)e:ema(#lane_divs) e.division_index=k e.divisions=lane_divs[k] e:eva(k)e:bva(0) e.c=-1 e.n=e.n or rootNote glc(i,2,255,255,255,0)glp(i,2,0) e.ln=-1 e.lc=ch e.on=false e.gate=0 e.wait=0 e.fl=0 refresh_lane(i) end init_lane(n)"
                 },
                 {
                     "event": 3,
@@ -79,7 +79,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function play(x,e) note_off(e) local c=out_mode==2 and drum_ch or out_mode==3 and x or ch local n=cl(out_mode==2 and e.dn or e.n,0,127) e.ln=n e.lc=c used[c]=true gms(c,144,n,127) e.on=true e.gate=e.pg e.fl=clock_pulses glp(x,2,255) end function lane_tick(x) local e=ele[x] e.c=e.c+1 if e.c>=e.divisions then e.c=0 end if e.c==0 and e:bva()>0 then if e.wait>0 then e.wait=0 play(x,e) end local q=pos%24 local d=q<12 and (q*swing+6)//12 or ((24-q)*swing+6)//12 e.pg=math.max(1,math.floor((e.divisions*clock_pulses-d)*gate_pct/100+0.5)) if d>0 then e.wait=d else play(x,e) end end end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function play(x,e) note_off(e) local c=out_mode==2 and drum_ch or out_mode==3 and x or ch local n=cl(out_mode==2 and e.dn or e.n,0,127) local k=c*128+n local o=own[k] if o and o.st==pos then o.on=false e.pg=math.max(e.pg,o.gate) else if o then note_off(o) end used[c]=true gms(c,144,n,127) end own[k]=e e.st=pos e.ln=n e.lc=c e.on=true e.gate=e.pg e.fl=clock_pulses glp(x,2,255) end function lane_tick(x) local e=ele[x] e.c=e.c+1 if e.c>=e.divisions then e.c=0 end if e.c==0 and e:bva()>0 then if e.wait>0 then e.wait=0 play(x,e) end local q=pos%24 local d=q<12 and (q*swing+6)//12 or ((24-q)*swing+6)//12 e.pg=math.max(1,math.floor((e.divisions*clock_pulses-d)*gate_pct/100+0.5)) if d>0 then e.wait=d else play(x,e) end end end"
                 },
                 {
                     "event": 3,
@@ -142,7 +142,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function stop_sequence() transport_running=false for i=0,7 do note_off(ele[i]) ele[i].wait=0 glp(i,2,0) end for c in pairs(used) do gms(c,176,123,0) end used={} glp(14,2,0)glp(15,2,0) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function stop_sequence() transport_running=false for i=0,7 do note_off(ele[i]) ele[i].wait=0 glp(i,2,0) end for c in pairs(used) do gms(c,176,123,0) end used={} own={} glp(14,2,0)glp(15,2,0) end"
                 },
                 {
                     "event": 3,
@@ -352,7 +352,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] rootNote=rootNote or 60 ch=0 drum_ch=9 out_mode=1 used={} swing=0 pos=-1 gate_pct=math.max(10,math.min(80,gate_pct or 50)) currentScale=math.max(0,math.min(7,currentScale or 1)) lane_divs={2,3,4,6,8,12,16,24,32} clock_divs={3,6,12,24} clock_labels={\"1/32\",\"1/16\",\"1/8\",\"1/4\"} clock_cols={{0,255,255},{0,120,255},{255,0,255},{255,180,0}} clock_index=math.max(1,math.min(#clock_divs,clock_index or 2)) clock_pulses=clock_divs[clock_index] midi_clock_counter=clock_pulses-1 globalCounter=-1 transport_running=false boot_clock=true scales={ {0,2,4,5,7,9,11,12},{0,2,3,5,7,9,10,12}, {0,1,3,5,7,8,10,12},{0,2,4,6,7,9,11,12}, {0,2,4,5,7,9,10,12},{0,2,3,5,7,8,10,12}, {0,1,3,5,6,8,10,12} } scale_cols={ {255,0,0},{255,127,0},{255,255,0},{0,255,0}, {0,0,255},{75,0,130},{148,0,211} }"
+                    "config": "--[[@cb]] rootNote=rootNote or 60 ch=0 drum_ch=9 out_mode=1 used={} own={} swing=0 pos=-1 gate_pct=math.max(10,math.min(80,gate_pct or 50)) currentScale=math.max(0,math.min(7,currentScale or 1)) lane_divs={2,3,4,6,8,12,16,24,32} clock_divs={3,6,12,24} clock_labels={\"1/32\",\"1/16\",\"1/8\",\"1/4\"} clock_cols={{0,255,255},{0,120,255},{255,0,255},{255,180,0}} clock_index=math.max(1,math.min(#clock_divs,clock_index or 2)) clock_pulses=clock_divs[clock_index] midi_clock_counter=clock_pulses-1 globalCounter=-1 transport_running=false boot_clock=true scales={ {0,2,4,5,7,9,11,12},{0,2,3,5,7,9,10,12}, {0,1,3,5,7,8,10,12},{0,2,4,6,7,9,11,12}, {0,2,4,5,7,9,10,12},{0,2,3,5,7,8,10,12}, {0,1,3,5,6,8,10,12} } scale_cols={ {255,0,0},{255,127,0},{255,255,0},{0,255,0}, {0,0,255},{75,0,130},{148,0,211} }"
                 },
                 {
                     "event": 4,
