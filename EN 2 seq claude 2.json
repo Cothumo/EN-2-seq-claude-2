@@ -289,15 +289,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] gate_cols={{0,255,255},{0,255,0},{255,180,0},{255,0,0}} self:emo(1)self:ev0(50)self:emi(10)self:ema(80) self:eva(gate_pct)self:bmo(0) sw_hold=false sw_lock=false function gate_led() if sw_hold then glc(13,1,255,0,255)glp(13,1,40+swing*35) else local p=gate_pct local k=p<=20 and 1 or p<=40 and 2 or p<=60 and 3 or 4 local c=gate_cols[k] glc(13,1,c[1],c[2],c[3])glp(13,1,math.max(40,p*3)) end glp(13,2,0) end function gate_tick() for i=0,7 do local e=ele[i] if e.on and e.gate>0 then e.gate=e.gate-1 if e.gate==0 then note_off(e)end end if e.fl>0 then e.fl=e.fl-1 if e.fl==0 then glp(i,2,0)end end if e.wait>0 then e.wait=e.wait-1 if e.wait==0 then play(i,e)end end end end gate_led()"
+                    "config": "--[[@cb]] gate_cols={{0,255,255},{0,255,0},{255,180,0},{255,0,0}} self:emo(1)self:ev0(50)self:emi(10)self:ema(80) self:eva(gate_pct)self:bmo(0) sw_hold=false sw_lock=false function gate_led() local p=gate_pct local k=p<=20 and 1 or p<=40 and 2 or p<=60 and 3 or 4 local c=gate_cols[k] glc(13,1,c[1],c[2],c[3])glp(13,1,math.max(40,p*3)) glc(13,2,255,0,255)glp(13,2,swing>0 and 120 or 0) end function gate_tick() for i=0,7 do local e=ele[i] if e.on and e.gate>0 then e.gate=e.gate-1 if e.gate==0 then note_off(e)end end if e.fl>0 then e.fl=e.fl-1 if e.fl==0 then glp(i,2,0)end end if e.wait>0 then e.wait=e.wait-1 if e.wait==0 then play(i,e)end end end end gate_led()"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] sw_hold=self:bva()>0 if not sw_hold then sw_lock=true gtt(13,250) end gate_led()"
+                    "config": "--[[@cb]] sw_hold=self:bva()>0 if sw_hold then swing=swing>0 and 0 or 4 print(\"swing:\"..(swing>0 and \"67%\" or \"off\")) else sw_lock=true gtt(13,250) end gate_led()"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local d=self:est()>63 and 1 or -1 if sw_hold then swing=cl(swing+d,0,6) print(\"swing:\"..(50+(swing*25+3)//6)..\"%\") elseif not sw_lock then gate_pct=cl(gate_pct+d*5,10,80) self:eva(gate_pct) print(\"gate:\"..gate_pct..\"%\") end gate_led()"
+                    "config": "--[[@cb]] if not sw_hold and not sw_lock then gate_pct=cl(gate_pct+(self:est()>63 and 5 or -5),10,80) self:eva(gate_pct) print(\"gate:\"..gate_pct..\"%\") gate_led() end"
                 },
                 {
                     "event": 6,
