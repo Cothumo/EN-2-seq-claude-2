@@ -100,7 +100,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) rnd_pool={1,1,1,1,3,3,3,3,5,5,5,5,7,7,7,7,2,2,4,4,6,6,8,9} rnd_ivs={4,8,16,32,64} rnd_on=false function set_div(i,k) local l=ele[i] l.division_index=k l.divisions=lane_divs[k] l:eva(k) l.c=-1 refresh_lane(i) end function rnd_restore() for i=0,7 do set_div(i,rnd_snap[i]) end rnd_snap=nil end function random_tick() local e=ele[14] e.counter=(e.counter+1)%e.divisions local on=rnd_on if on and e.counter==0 then glc(14,2,grnd(),grnd(),grnd()) glc(14,1,grnd(),grnd(),grnd()) glp(14,2,255) for i=0,7 do if ele[i]:bva()>0 then set_div(i,rnd_pool[grnd()%#rnd_pool+1]) end end else if rnd_snap and not on and globalCounter==0 then rnd_restore() end glp(14,2,on and 60 or 0) end end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) rnd_pool={1,1,1,1,3,3,3,3,5,5,5,5,7,7,7,7,2,2,4,4,6,6,8,9} rnd_ivs={4,8,16,32,64} rnd_on=false function set_div(i,k) local l=ele[i] l.division_index=k l.divisions=lane_divs[k] l:eva(k) l.c=-1 refresh_lane(i) end function rnd_restore() for i=0,7 do set_div(i,rnd_snap[i]) end rnd_snap=nil end function random_tick() local e=ele[14] e.counter=e.counter+1 local on=rnd_on local hold=e.division_index>#rnd_ivs if on and not hold and e.counter%e.divisions==0 then glc(14,2,grnd(),grnd(),grnd()) glc(14,1,grnd(),grnd(),grnd()) glp(14,2,255) for i=0,7 do if ele[i]:bva()>0 then set_div(i,rnd_pool[grnd()%#rnd_pool+1]) end end else if rnd_snap and not on and globalCounter==0 then rnd_restore() end glp(14,2,on and (hold and 150 or 60) or 0) end end"
                 },
                 {
                     "event": 3,
@@ -310,19 +310,19 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() self:bmo(0)self:emi(1)self:ema(#rnd_ivs) self.division_index=3 self:eva(3) self.divisions=rnd_ivs[3] self:bva(0)self.counter=-1 glp(num,1,0)glp(num,2,0) glc(num,1,255,0,255)glc(num,2,255,0,255) function clock_led() local c=clock_cols[clock_index] glc(15,1,c[1],c[2],c[3])glp(15,1,clock_index*50) end clock_led()"
+                    "config": "--[[@cb]] local num=self:ind() self:bmo(0)self:emi(1)self:ema(#rnd_ivs+1) self.division_index=3 self:eva(3) self.divisions=rnd_ivs[3] self:bva(0)self.counter=-1 glp(num,1,0)glp(num,2,0) glc(num,1,255,0,255)glc(num,2,255,0,255) function clock_led() local c=clock_cols[clock_index] glc(15,1,c[1],c[2],c[3])glp(15,1,clock_index*50) end clock_led()"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] if self:bva()>0 then self.pr=true gtt(14,800) return end if not self.pr then return end self.pr=false if self:bel()>=800 then if rnd_on or rnd_snap then rnd_on=false rnd_snap=nil print(\"random off, pattern kept\") end elseif rnd_on then rnd_on=false if rnd_snap and not transport_running then rnd_restore() end print(\"random off\") else rnd_on=true if not rnd_snap then rnd_snap={} for i=0,7 do rnd_snap[i]=ele[i].division_index end end print(\"random on\") end glp(14,2,rnd_on and 60 or 0)"
+                    "config": "--[[@cb]] if self:bva()==0 then return end if not rnd_on then rnd_on=true if not rnd_snap then rnd_snap={} for i=0,7 do rnd_snap[i]=ele[i].division_index end end print(\"random on\") elseif self.division_index>#rnd_ivs then rnd_on=false rnd_snap=nil print(\"random off, pattern kept\") else rnd_on=false if rnd_snap and not transport_running then rnd_restore() end print(\"random off\") end glp(14,2,rnd_on and 60 or 0)"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=cl(self:eva(),1,#rnd_ivs) self.division_index=k self.divisions=rnd_ivs[k] print(\"random every \"..self.divisions..\" steps\")"
+                    "config": "--[[@cb]] local k=cl(self:eva(),1,#rnd_ivs+1) self.division_index=k if k>#rnd_ivs then print(\"random: hold\") else self.divisions=rnd_ivs[k] print(\"random every \"..self.divisions..\" steps\") end"
                 },
                 {
                     "event": 6,
-                    "config": "--[[@cb]] if self:bva()>0 then glc(14,2,255,255,255) glp(14,2,255) end"
+                    "config": "--[[@cb]]"
                 }
             ]
         },
