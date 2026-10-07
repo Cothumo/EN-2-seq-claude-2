@@ -20,11 +20,11 @@
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] lane_btn(self)"
+                    "config": "--[[@cb]] if lane_btn then lane_btn(self) end"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] lane_enc(self)"
+                    "config": "--[[@cb]] if lane_enc then lane_enc(self) end"
                 },
                 {
                     "event": 6,
@@ -41,11 +41,11 @@
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] lane_btn(self)"
+                    "config": "--[[@cb]] if lane_btn then lane_btn(self) end"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] lane_enc(self)"
+                    "config": "--[[@cb]] if lane_enc then lane_enc(self) end"
                 },
                 {
                     "event": 6,
