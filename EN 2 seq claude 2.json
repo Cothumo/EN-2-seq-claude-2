@@ -58,7 +58,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function cx(x,y) local t=ele[x]:bst()>0 and y+4 or y local e=ele[t] local f=out_mode==2 and \"dn\" or \"n\" e[f]=cl(e[f]+(ele[x]:est()>63 and 1 or -1),0,127) refresh_lane(t) glp(x,2,180) print(\"lane \"..t..\" note:\"..e[f]) end function lane_btn(s) local i=s:ind() if s:bva()==0 then note_off(s) s.wait=0 glp(i,2,0) end refresh_lane(i) end function lane_enc(s) local k=cl(s:eva(),1,#lane_divs) s.division_index=k s.divisions=lane_divs[k] refresh_lane(s:ind()) print(\"lane \"..s:ind()..\" div:\"..s.divisions) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function cx(x,y) local t=ele[x]:bst()>0 and y+4 or y local e=ele[t] local f=out_mode==2 and \"dn\" or \"n\" e[f]=cl(e[f]+(ele[x]:est()>63 and 1 or -1),0,127) refresh_lane(t) glp(x,2,180) print(\"lane \"..t..\" note:\"..e[f]) end function lane_btn(s) local i=s:ind() if s:bva()==0 then note_off(s) s.wait=0 glp(i,2,0) end refresh_lane(i) end function lane_enc(s) local k=cl(s:eva(),1,#lane_divs) s.division_index=k s.divisions=lane_divs[k] if rnd_snap then rnd_snap[s:ind()]=k end refresh_lane(s:ind()) print(\"lane \"..s:ind()..\" div:\"..s.divisions) end"
                 },
                 {
                     "event": 3,
@@ -100,7 +100,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function random_tick() local e=ele[14] e.counter=(e.counter+1)%e.divisions if e.counter==0 and e:bva()>0 then glp(14,2,200) glc(14,2,grnd(),grnd(),grnd()) glc(14,1,grnd(),grnd(),grnd()) for i=0,7 do local k=grnd()%#lane_divs+1 local l=ele[i] l.division_index=k l.divisions=lane_divs[k] l:eva(k) refresh_lane(i) end else glp(14,2,0) end end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) rnd_pool={1,1,1,1,3,3,3,3,5,5,5,5,7,7,7,7,2,2,4,4,6,6,8,9} rnd_ivs={4,8,16,32,64} function set_div(i,k) local l=ele[i] l.division_index=k l.divisions=lane_divs[k] l:eva(k) l.c=-1 refresh_lane(i) end function rnd_restore() for i=0,7 do set_div(i,rnd_snap[i]) end rnd_snap=nil end function random_tick() local e=ele[14] e.counter=(e.counter+1)%e.divisions local on=e:bva()>0 if on and e.counter==0 then glc(14,2,grnd(),grnd(),grnd()) glc(14,1,grnd(),grnd(),grnd()) glp(14,2,255) for i=0,7 do if ele[i]:bva()>0 then set_div(i,rnd_pool[grnd()%#rnd_pool+1]) end end else if rnd_snap and not on and globalCounter==0 then rnd_restore() end glp(14,2,on and 60 or 0) end end"
                 },
                 {
                     "event": 3,
@@ -121,7 +121,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function sequencer_tick() globalCounter=(globalCounter+1)%16 for i=0,7 do lane_tick(i)end random_tick() glp(15,2,globalCounter==0 and 255 or(globalCounter%4==0 and 50 or 0)) end function reset_sequence() globalCounter=-1 pos=-1 midi_clock_counter=clock_pulses-1 for i=0,7 do local e=ele[i] note_off(e)e.c=-1 e.ln=-1 e.wait=0 e.fl=0 glp(i,2,0) end ele[14].counter=-1 glp(14,2,0)glp(15,2,0) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function sequencer_tick() globalCounter=(globalCounter+1)%16 random_tick() for i=0,7 do lane_tick(i)end glp(15,2,globalCounter==0 and 255 or(globalCounter%4==0 and 50 or 0)) end function reset_sequence() globalCounter=-1 pos=-1 midi_clock_counter=clock_pulses-1 for i=0,7 do local e=ele[i] note_off(e)e.c=-1 e.ln=-1 e.wait=0 e.fl=0 glp(i,2,0) end ele[14].counter=-1 glp(14,2,0)glp(15,2,0) end"
                 },
                 {
                     "event": 3,
@@ -310,15 +310,15 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() self:bmo(1)self:emi(1)self:ema(#lane_divs) self.division_index=7 self:eva(7) self.divisions=lane_divs[7] self:bva(0)self.counter=-1 glp(num,1,0)glp(num,2,0) glc(num,1,255,0,255)glc(num,2,255,0,255) function clock_led() local c=clock_cols[clock_index] glc(15,1,c[1],c[2],c[3])glp(15,1,clock_index*50) end clock_led()"
+                    "config": "--[[@cb]] local num=self:ind() self:bmo(1)self:emi(1)self:ema(#rnd_ivs) self.division_index=3 self:eva(3) self.divisions=rnd_ivs[3] self:bva(0)self.counter=-1 glp(num,1,0)glp(num,2,0) glc(num,1,255,0,255)glc(num,2,255,0,255) function clock_led() local c=clock_cols[clock_index] glc(15,1,c[1],c[2],c[3])glp(15,1,clock_index*50) end clock_led()"
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] glp(self:ind(),2,self:bva()>0 and 100 or 0)"
+                    "config": "--[[@cb]] if self:bva()>0 then if not rnd_snap then rnd_snap={} for i=0,7 do rnd_snap[i]=ele[i].division_index end end glp(14,2,60) print(\"random on\") else if rnd_snap and not transport_running then rnd_restore() end glp(14,2,0) print(\"random off\") end"
                 },
                 {
                     "event": 2,
-                    "config": "--[[@cb]] local k=cl(self:eva(),1,#lane_divs) self.division_index=k self.divisions=lane_divs[k] print(\"random div:\"..self.divisions)"
+                    "config": "--[[@cb]] local k=cl(self:eva(),1,#rnd_ivs) self.division_index=k self.divisions=rnd_ivs[k] print(\"random every \"..self.divisions..\" steps\")"
                 },
                 {
                     "event": 6,
