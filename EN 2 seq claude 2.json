@@ -314,7 +314,7 @@
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] if self:bva()==0 then return end if not rnd_on then rnd_on=true if not rnd_snap then rnd_snap={} for i=0,7 do rnd_snap[i]=ele[i].division_index end end print(\"random on\") elseif self.division_index>#rnd_ivs then rnd_on=false rnd_snap=nil print(\"random off, pattern kept\") else rnd_on=false if rnd_snap then rnd_restore() end print(\"random off, pattern restored\") end glp(14,2,rnd_on and 60 or 0)"
+                    "config": "--[[@cb]] if self:bva()==0 then return end if not rnd_on then rnd_on=true if not rnd_snap then rnd_snap={} for i=0,7 do rnd_snap[i]=ele[i].division_index end end print(\"random on\") else rnd_on=false if rnd_snap then rnd_restore() end print(\"random off, pattern restored\") end glp(14,2,rnd_on and 60 or 0)"
                 },
                 {
                     "event": 2,
