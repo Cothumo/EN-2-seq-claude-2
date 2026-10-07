@@ -58,7 +58,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function cx(x,y) local t=ele[x]:bst()>0 and y+4 or y local e=ele[t] local f=out_mode==2 and \"dn\" or \"n\" e[f]=cl(e[f]+(ele[x]:est()>63 and 1 or -1),0,127) refresh_lane(t) glp(x,2,180) print(\"lane \"..t..\" note:\"..e[f]) end function lane_btn(s) local i=s:ind() if s:bva()==0 then note_off(s) s.wait=0 glp(i,2,0) end refresh_lane(i) end function lane_enc(s) local k=cl(s:eva(),1,#lane_divs) s.division_index=k s.divisions=lane_divs[k] if rnd_snap then rnd_snap[s:ind()]=k end refresh_lane(s:ind()) print(\"lane \"..s:ind()..\" div:\"..s.divisions) end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) function cx(x,y) local t=ele[x]:bst()>0 and y+4 or y local e=ele[t] local f=out_mode==2 and \"dn\" or \"n\" e[f]=cl(e[f]+(ele[x]:est()>63 and 1 or -1),0,127) refresh_lane(t) glp(x,2,180) print(\"lane \"..t..\" note:\"..e[f]) end function lane_btn(s) local i=s:ind() if s:bva()==0 then note_off(s) s.wait=0 glp(i,2,0) end refresh_lane(i) end function lane_enc(s) local k=cl(s:eva(),1,#lane_divs) s.division_index=k s.divisions=lane_divs[k] if rnd_snap and ele[14].division_index<=#rnd_ivs then rnd_snap[s:ind()]=k end refresh_lane(s:ind()) print(\"lane \"..s:ind()..\" div:\"..s.divisions) end"
                 },
                 {
                     "event": 3,
@@ -100,7 +100,7 @@
             "events": [
                 {
                     "event": 0,
-                    "config": "--[[@cb]] local num=self:ind() init_lane(num) rnd_pool={1,1,1,1,3,3,3,3,5,5,5,5,7,7,7,7,2,2,4,4,6,6,8,9} rnd_ivs={4,8,16,32,64} rnd_on=false function set_div(i,k) local l=ele[i] l.division_index=k l.divisions=lane_divs[k] l:eva(k) l.c=-1 refresh_lane(i) end function rnd_restore() local s=ele[14].counter for i=0,7 do set_div(i,rnd_snap[i]) if s>=0 then ele[i].c=s%ele[i].divisions end end rnd_snap=nil end function random_tick() local e=ele[14] e.counter=e.counter+1 local on=rnd_on local hold=e.division_index>#rnd_ivs if on and not hold and e.counter%e.divisions==0 then glc(14,2,grnd(),grnd(),grnd()) glc(14,1,grnd(),grnd(),grnd()) glp(14,2,255) for i=0,7 do if ele[i]:bva()>0 then set_div(i,rnd_pool[grnd()%#rnd_pool+1]) end end else glp(14,2,on and (hold and 150 or 60) or 0) end end"
+                    "config": "--[[@cb]] local num=self:ind() init_lane(num) rnd_pool={1,1,1,1,3,3,3,3,5,5,5,5,7,7,7,7,2,2,4,4,6,6,8,9} rnd_ivs={4,8,16,32,64} rnd_on=false function set_div(i,k) local l=ele[i] l.division_index=k l.divisions=lane_divs[k] l:eva(k) l.c=-1 refresh_lane(i) end function rnd_apply(t) local s=ele[14].counter for i=0,7 do set_div(i,t[i]) if s>=0 then ele[i].c=s%ele[i].divisions end end end function rnd_restore() rnd_apply(rnd_snap) rnd_snap=nil end function random_tick() local e=ele[14] e.counter=e.counter+1 local on=rnd_on local hold=e.division_index>#rnd_ivs if on and not hold and e.counter%e.divisions==0 then glc(14,2,grnd(),grnd(),grnd()) glc(14,1,grnd(),grnd(),grnd()) glp(14,2,255) for i=0,7 do if ele[i]:bva()>0 then set_div(i,rnd_pool[grnd()%#rnd_pool+1]) end end else glp(14,2,on and (hold and 150 or 60) or 0) end end"
                 },
                 {
                     "event": 3,
@@ -314,7 +314,7 @@
                 },
                 {
                     "event": 3,
-                    "config": "--[[@cb]] if self:bva()==0 then return end if not rnd_on then rnd_on=true if not rnd_snap then rnd_snap={} for i=0,7 do rnd_snap[i]=ele[i].division_index end end print(\"random on\") else rnd_on=false if rnd_snap then rnd_restore() end print(\"random off, pattern restored\") end glp(14,2,rnd_on and 60 or 0)"
+                    "config": "--[[@cb]] if self:bva()==0 then return end if not rnd_on then rnd_on=true if not rnd_snap then rnd_snap={} for i=0,7 do rnd_snap[i]=ele[i].division_index end end if self.division_index>#rnd_ivs and rnd_held then rnd_apply(rnd_held) end print(\"random on\") else rnd_on=false if self.division_index>#rnd_ivs then rnd_held={} for i=0,7 do rnd_held[i]=ele[i].division_index end end if rnd_snap then rnd_restore() end print(\"random off, pattern restored\") end glp(14,2,rnd_on and 60 or 0)"
                 },
                 {
                     "event": 2,
