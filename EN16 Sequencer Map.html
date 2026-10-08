@@ -1,0 +1,267 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>EN16 Sequencer Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the EN16's physical 4x4 control grid on the left, reference panels on the right; stacks below 1100px. */
+:root {
+  --bg: #eef2f7;
+  --card: #ffffff;
+  --fg: #111a2b;
+  --muted: #5a6577;
+  --rule: #d9e0ea;
+  --line: #2b74e4;       /* lane / scale / gate card edge */
+  --line-pitch: #138a8a;
+  --line-random: #c23ad0;
+  --line-clock: #e0682b;
+  --chip: #f1f4f9;
+  --dot-edge: rgba(17, 26, 43, .28);
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1219; --card: #151c27; --fg: #e8edf5; --muted: #9aa6b8; --rule: #263142;
+    --line: #4d8ff0; --line-pitch: #2bb3b0; --line-random: #d65ce3; --line-clock: #f0844d;
+    --chip: #1c2533; --dot-edge: rgba(232, 237, 245, .35); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1219; --card: #151c27; --fg: #e8edf5; --muted: #9aa6b8; --rule: #263142;
+  --line: #4d8ff0; --line-pitch: #2bb3b0; --line-random: #d65ce3; --line-clock: #f0844d;
+  --chip: #1c2533; --dot-edge: rgba(232, 237, 245, .35); color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 14px; line-height: 1.45; }
+.page { max-width: 1480px; margin: 0 auto; padding-inline: 20px; padding-block: 24px 40px; display: grid; gap: 20px; }
+
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 34px; letter-spacing: .02em; margin: 0; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- control grid ---------- */
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.ctl { background: var(--card); border: 2px solid var(--edge, var(--line)); border-radius: 10px;
+       padding: 14px 12px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px; min-width: 0; }
+.ctl.pitch { --edge: var(--line-pitch); }
+.ctl.random { --edge: var(--line-random); }
+.ctl.clock { --edge: var(--line-clock); }
+.ctl h2 { font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: .04em; margin: 0; text-align: center; line-height: 1.1; }
+.ctl .el { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: .04em; }
+
+.knob { position: relative; width: 62px; height: 62px; flex: none; margin-top: 4px; }
+.knob .ring { position: absolute; inset: 0; border-radius: 50%; background: var(--ring);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px)); }
+.knob .tick { position: absolute; left: 50%; top: -7px; width: 3px; height: 17px; border-radius: 2px; background: var(--fg); transform: translateX(-50%); }
+
+.acts { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; margin: 0; font-size: 13px; }
+.acts dt { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding-top: 2.5px; white-space: nowrap; }
+.acts dd { margin: 0; min-width: 0; }
+.ctl .note { width: 100%; font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 7px; margin-top: auto; }
+
+.dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1px var(--dot-edge); flex: none; display: inline-block; vertical-align: -1px; }
+.dot.hollow { background: transparent; box-shadow: inset 0 0 0 2px var(--c), 0 0 0 1px var(--dot-edge); }
+
+/* ---------- reference panels ---------- */
+.panels { display: grid; gap: 12px; min-width: 0; }
+.panel { background: var(--card); border: 2px solid var(--line); border-radius: 10px; padding: 14px 16px 16px; min-width: 0; }
+.panel.random { border-color: var(--line-random); }
+.panel h3 { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .05em; margin: 0 0 10px; color: var(--line); }
+.panel.random h3 { color: var(--line-random); }
+.panel h4 { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
+.panel p { margin: 6px 0 0; font-size: 13px; }
+.panel .fine { font-size: 12px; color: var(--muted); }
+
+.legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 7px 14px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
+.legend li { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.legend b { font-weight: 600; }
+.legend small { color: var(--muted); font-size: 11.5px; }
+
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 5px 8px 5px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+td.num, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 12px; }
+tr:last-child td { border-bottom: 0; }
+
+.flow { display: grid; gap: 6px; margin: 4px 0 0; padding: 0; list-style: none; counter-reset: s; font-size: 13px; }
+.flow li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; counter-increment: s; }
+.flow li::before { content: counter(s); font-family: var(--mono); font-size: 11px; width: 20px; height: 20px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--chip); color: var(--muted); }
+.chip { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--chip); white-space: nowrap; }
+
+footer { color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+</style>
+
+<div class="page">
+  <header>
+    <h1>EN16 SEQUENCER MAP</h1>
+    <p>8 polyrhythmic lanes · follows external MIDI clock · Intech Grid EN16</p>
+  </header>
+
+  <div class="layout">
+    <!-- 4x4 control grid in the EN16's physical order -->
+    <section class="grid" aria-label="Controls">
+      <article class="ctl"><h2>LANE 1</h2><span class="el">element 0</span><div class="knob" style="--ring:#1f6fe5"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>division</dd><dt>press</dt><dd>on / off</dd></dl><p class="note">default ×16 base step</p></article>
+      <article class="ctl"><h2>LANE 2</h2><span class="el">element 1</span><div class="knob" style="--ring:#1f6fe5"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>division</dd><dt>press</dt><dd>on / off</dd></dl><p class="note">default ×16 base step</p></article>
+      <article class="ctl"><h2>LANE 3</h2><span class="el">element 2</span><div class="knob" style="--ring:#1f6fe5"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>division</dd><dt>press</dt><dd>on / off</dd></dl><p class="note">default ×16 base step</p></article>
+      <article class="ctl"><h2>LANE 4</h2><span class="el">element 3</span><div class="knob" style="--ring:#1f6fe5"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>division</dd><dt>press</dt><dd>on / off</dd></dl><p class="note">default ×16 base step</p></article>
+      <article class="ctl"><h2>LANE 5</h2><span class="el">element 4</span><div class="knob" style="--ring:#1f6fe5"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>division</dd><dt>press</dt><dd>on / off</dd></dl><p class="note">default ×16 base step</p></article>
+      <article class="ctl"><h2>LANE 6</h2><span class="el">element 5</span><div class="knob" style="--ring:#1f6fe5"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>division</dd><dt>press</dt><dd>on / off</dd></dl><p class="note">default ×16 base step</p></article>
+      <article class="ctl"><h2>LANE 7</h2><span class="el">element 6</span><div class="knob" style="--ring:#1f6fe5"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>division</dd><dt>press</dt><dd>on / off</dd></dl><p class="note">default ×16 base step</p></article>
+      <article class="ctl"><h2>LANE 8</h2><span class="el">element 7</span><div class="knob" style="--ring:#1f6fe5"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>division</dd><dt>press</dt><dd>on / off</dd></dl><p class="note">default ×16 base step</p></article>
+
+      <article class="ctl pitch"><h2>PITCH 1 / 5</h2><span class="el">element 8</span><div class="knob" style="--ring:#1fa3a3"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>lane 1 note ±1</dd><dt>hold+turn</dt><dd>lane 5 note ±1</dd></dl><p class="note">semitones · drum note in Drum mode</p></article>
+      <article class="ctl pitch"><h2>PITCH 2 / 6</h2><span class="el">element 9</span><div class="knob" style="--ring:#1fa3a3"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>lane 2 note ±1</dd><dt>hold+turn</dt><dd>lane 6 note ±1</dd></dl><p class="note">semitones · drum note in Drum mode</p></article>
+      <article class="ctl pitch"><h2>PITCH 3 / 7</h2><span class="el">element 10</span><div class="knob" style="--ring:#1fa3a3"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>lane 3 note ±1</dd><dt>hold+turn</dt><dd>lane 7 note ±1</dd></dl><p class="note">semitones · drum note in Drum mode</p></article>
+      <article class="ctl pitch"><h2>PITCH 4 / 8</h2><span class="el">element 11</span><div class="knob" style="--ring:#1fa3a3"><span class="ring"></span><span class="tick"></span></div><dl class="acts"><dt>turn</dt><dd>lane 4 note ±1</dd><dt>hold+turn</dt><dd>lane 8 note ±1</dd></dl><p class="note">semitones · drum note in Drum mode</p></article>
+
+      <article class="ctl">
+        <h2>SCALE / OUTPUT</h2><span class="el">element 12</span>
+        <div class="knob" style="--ring:conic-gradient(#ffffff 0 12.5%,#ff0000 0 25%,#ff7f00 0 37.5%,#ffff00 0 50%,#00ff00 0 62.5%,#0000ff 0 75%,#4b0082 0 87.5%,#9400d3 0)"><span class="ring"></span><span class="tick"></span></div>
+        <div class="dots" aria-label="Scale colours"><span class="dot" style="--c:#ffffff"></span><span class="dot" style="--c:#ff0000"></span><span class="dot" style="--c:#ff7f00"></span><span class="dot" style="--c:#ffff00"></span><span class="dot" style="--c:#00ff00"></span><span class="dot" style="--c:#0000ff"></span><span class="dot" style="--c:#4b0082"></span><span class="dot" style="--c:#9400d3"></span></div>
+        <dl class="acts"><dt>turn</dt><dd>scale · drum kit in Drum mode</dd><dt>press</dt><dd>output mode: Scale → Drum → Multi</dd></dl>
+        <p class="note">root note: send a MIDI note to the Grid</p>
+      </article>
+
+      <article class="ctl">
+        <h2>GATE / SWING</h2><span class="el">element 13</span>
+        <div class="knob" style="--ring:conic-gradient(#00ffff 0 25%,#00ff00 0 50%,#ffb400 0 75%,#ff0000 0)"><span class="ring"></span><span class="tick"></span></div>
+        <div class="dots" aria-label="Gate colours"><span class="dot" style="--c:#00ffff"></span><span class="dot" style="--c:#00ff00"></span><span class="dot" style="--c:#ffb400"></span><span class="dot" style="--c:#ff0000"></span><span class="dot hollow" style="--c:#ff00ff" title="swing on"></span></div>
+        <dl class="acts"><dt>turn</dt><dd>gate 10–80%, 5% steps</dd><dt>press</dt><dd>swing off ↔ 67%</dd></dl>
+        <p class="note">magenta tint = swing on · turns ignored while pressed</p>
+      </article>
+
+      <article class="ctl random">
+        <h2>RANDOM DIV</h2><span class="el">element 14</span>
+        <div class="knob" style="--ring:#d22fe0"><span class="ring"></span><span class="tick"></span></div>
+        <dl class="acts"><dt>press</dt><dd>random on / off · off restores your pattern</dd><dt>turn</dt><dd>re-roll every <span class="mono">4 · 8 · 16 · 32 · 64</span> steps, far right = HOLD</dd></dl>
+        <p class="note">at HOLD, press switches between your pattern and the held one</p>
+      </article>
+
+      <article class="ctl clock">
+        <h2>BASE CLOCK</h2><span class="el">element 15</span>
+        <div class="knob" style="--ring:conic-gradient(#00ffff 0 25%,#0078ff 0 50%,#ff00ff 0 75%,#ffb400 0)"><span class="ring"></span><span class="tick"></span></div>
+        <div class="dots" aria-label="Clock colours"><span class="dot" style="--c:#00ffff"></span><span class="dot" style="--c:#0078ff"></span><span class="dot" style="--c:#ff00ff"></span><span class="dot" style="--c:#ffb400"></span></div>
+        <dl class="acts"><dt>turn</dt><dd>step <span class="mono">1/32 · 1/16 · 1/8 · 1/4</span></dd><dt>press</dt><dd>—</dd></dl>
+        <p class="note">white flash: bright on the bar, dim on each beat</p>
+      </article>
+    </section>
+
+    <!-- reference panels -->
+    <div class="panels">
+      <section class="panel">
+        <h3>LED STATE MAP</h3>
+        <ul class="legend">
+          <li><span class="dot" style="--c:#7a1010"></span><span><b>Lane off</b> <small>dim red</small></span></li>
+          <li><span class="dot" style="--c:#0064ff"></span><span><b>Lane on</b> <small>blue, brighter = higher note</small></span></li>
+          <li><span class="dot" style="--c:#ffffff"></span><span><b>Note played</b> <small>white flash</small></span></li>
+          <li><span class="dot" style="--c:#0064ff"></span><span><b>Pitch idle</b> <small>blue</small></span></li>
+          <li><span class="dot" style="--c:#ff00ff"></span><span><b>Pitch held</b> <small>magenta</small></span></li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h3>CLOCK &amp; DIVISIONS</h3>
+        <ul class="legend">
+          <li><span class="dot" style="--c:#00ffff"></span><span><b>1/32</b> <small>3 MIDI clocks</small></span></li>
+          <li><span class="dot" style="--c:#0078ff"></span><span><b>1/16</b> <small>6 MIDI clocks</small></span></li>
+          <li><span class="dot" style="--c:#ff00ff"></span><span><b>1/8</b> <small>12 MIDI clocks</small></span></li>
+          <li><span class="dot" style="--c:#ffb400"></span><span><b>1/4</b> <small>24 MIDI clocks</small></span></li>
+        </ul>
+        <h4>Lane divisions</h4>
+        <p class="mono">×2 · ×3 · ×4 · ×6 · ×8 · ×12 · ×16 · ×24 · ×32</p>
+        <p class="fine">Lane interval = division × base step. Defaults: lanes ×16, base step 1/16 (one note per bar).</p>
+        <h4>Transport</h4>
+        <p class="fine">Start resets every lane to step 1 · Continue resumes · Stop releases all notes · after power-up, clock alone starts playback if no Start arrives.</p>
+      </section>
+
+      <section class="panel">
+        <h3>GATE &amp; SWING</h3>
+        <ul class="legend">
+          <li><span class="dot" style="--c:#00ffff"></span><span><b>10–20%</b></span></li>
+          <li><span class="dot" style="--c:#00ff00"></span><span><b>25–40%</b></span></li>
+          <li><span class="dot" style="--c:#ffb400"></span><span><b>45–60%</b></span></li>
+          <li><span class="dot" style="--c:#ff0000"></span><span><b>65–80%</b></span></li>
+        </ul>
+        <p class="fine">Gate is a percentage of each lane's interval. Brightness rises with the value.</p>
+        <h4>Swing (press)</h4>
+        <p class="fine">Off or 67%. Delays offbeat 8ths (offbeat 16ths at the 1/32 step). Notes on the beat stay put, and note length doesn't change. Magenta tint on the LED while swing is on.</p>
+      </section>
+
+      <section class="panel">
+        <h3>SCALES</h3>
+        <ul class="legend">
+          <li><span class="dot" style="--c:#ffffff"></span><b>Unison</b></li>
+          <li><span class="dot" style="--c:#ff0000"></span><b>Major</b></li>
+          <li><span class="dot" style="--c:#ff7f00"></span><b>Dorian</b></li>
+          <li><span class="dot" style="--c:#ffff00"></span><b>Phrygian</b></li>
+          <li><span class="dot" style="--c:#00ff00"></span><b>Lydian</b></li>
+          <li><span class="dot" style="--c:#0000ff"></span><b>Mixolydian</b></li>
+          <li><span class="dot" style="--c:#4b0082"></span><b>Aeolian</b></li>
+          <li><span class="dot" style="--c:#9400d3"></span><b>Locrian</b></li>
+        </ul>
+        <p class="fine">Lanes 1–8 play scale degrees 1–8 from the root (default C4 = 60). Unison puts every lane on the root. Any incoming MIDI note-on sets the root.</p>
+      </section>
+
+      <section class="panel">
+        <h3>OUTPUT MODES</h3>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Mode</th><th>LED overlay</th><th>MIDI channel</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><b>Scale</b></td><td>none</td><td class="num">1</td><td>scale notes</td></tr>
+              <tr><td><b>Drum</b></td><td><span class="dot" style="--c:#ffffff"></span> white</td><td class="num">10</td><td>drum kit, turn to choose</td></tr>
+              <tr><td><b>Multi</b></td><td><span class="dot" style="--c:#00ffff"></span> cyan</td><td class="num">lane n → n</td><td>scale notes</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Drum kits</h4>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Kit</th><th>Lanes 1 → 8</th></tr></thead>
+            <tbody>
+              <tr><td><span class="dot" style="--c:#ff0000"></span> GM</td><td class="num">36 38 42 46 39 37 45 49</td></tr>
+              <tr><td><span class="dot" style="--c:#00ff00"></span> C1 chromatic</td><td class="num">36 37 38 39 40 41 42 43</td></tr>
+              <tr><td><span class="dot" style="--c:#0000ff"></span> TR</td><td class="num">36 38 43 47 50 37 42 46</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fine">GM: kick, snare, closed hat, open hat, clap, rim, low tom, crash. Multi mode suits a Volca Drum (parts on channels 1–6).</p>
+      </section>
+
+      <section class="panel random">
+        <h3>RANDOM DIV</h3>
+        <ul class="legend">
+          <li><span class="dot" style="--c:#2a2f38"></span><span><b>Off</b> <small>dark</small></span></li>
+          <li><span class="dot" style="--c:#8a3a96"></span><span><b>Re-rolling</b> <small>dim, flash on each roll</small></span></li>
+          <li><span class="dot" style="--c:#c86bd4"></span><span><b>HOLD</b> <small>steady</small></span></li>
+        </ul>
+        <h4>Switching two patterns</h4>
+        <ol class="flow">
+          <li><span>Press on. Lanes that are on get a new division on every bar line (or the chosen interval).</span></li>
+          <li><span>Turn to <span class="chip">HOLD</span> when you like one. It stops re-rolling.</span></li>
+          <li><span>Press off. Your own pattern comes back and the held one is saved.</span></li>
+          <li><span>Leave it on HOLD. Each press now swaps your pattern ↔ the held one, in time.</span></li>
+        </ol>
+        <p class="fine">Divisions ×2/×4/×8/×16 come up most often, ×3/×6/×12 sometimes, ×24/×32 rarely. Lanes that are off are never changed. Turning a lane while random is on edits your own pattern, or the held one when at HOLD.</p>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <span>Utility button: next page.</span>
+    <span>Settings reset on page change and power-off.</span>
+  </footer>
+</div>
+
+</body></html>
